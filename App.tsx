@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 import Intro from "./app/screens/Intro";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import NoteScreen from "./app/screens/NoteScreen";
+import DiaryScreen from "./app/screens/DiaryScreen";
 
 export default function App() {
   const [username, setUsername] = useState<string>("");
@@ -18,5 +18,5 @@ export default function App() {
     // AsyncStorage.clear();
   }, [username]);
   if (!username) return <Intro onFinish={findUser} />;
-  return <NoteScreen username={username} />;
+  return <DiaryScreen username={username} />;
 }

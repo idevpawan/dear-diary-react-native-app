@@ -9,7 +9,7 @@ import React, { useEffect, useState } from "react";
 import colors from "../misc/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import Clipboard, { useClipboard } from "@react-native-community/clipboard";
+import * as Clipboard from "expo-clipboard";
 
 const cardColors = ["#DBF3DB", "#F7F6D4", "#DCEAFC", "#EFE9F6"];
 
@@ -37,7 +37,7 @@ const DiaryCard = ({
 
   const copyDiary = (content: string) => {
     if (content !== null) {
-      Clipboard?.setString("Hello wolrd");
+      Clipboard.setStringAsync("Hello wolrd");
     }
     ToastAndroid.showWithGravity(
       "Diary Copied!",

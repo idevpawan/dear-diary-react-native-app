@@ -1,4 +1,11 @@
-import { StatusBar, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Alert,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import colors from "../misc/colors";
 import DiaryCard from "../components/DiaryCard";
@@ -6,9 +13,11 @@ import FloatingActions from "../components/FloatingActions";
 import NoteInputModal from "../components/NoteInputModal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const NoteScreen = ({ username }: { username: string }) => {
+const DiaryScreen = ({ username }: { username: string }) => {
   const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
-  const [diaries, setDiaries] = useState<any>([]);
+  const [searchText, setSearchText] = useState<string>("");
+  const [diaries, setDiaries] = useState<any[]>([]);
+  const [filteredDiaries, setFilteredDiaries] = useState<any>([]);
   const onHandleSubmit = async (diary: string) => {
     const time = new Date().getTime();
     const data = { id: Date.now(), diary, time, date: time };
@@ -19,14 +28,30 @@ const NoteScreen = ({ username }: { username: string }) => {
   const findDiaries = async () => {
     const results = await AsyncStorage.getItem("diaries");
     if (results !== null) setDiaries(JSON.parse(results));
-    console.log(results);
   };
 
-  const onHandleDelete = async (id: number) => {
+  const deleteFunc = async (id: number) => {
     const updatedDiaries = diaries.filter((e: { id: number }) => e.id !== id);
     setDiaries(updatedDiaries);
     await AsyncStorage.setItem("diaries", JSON.stringify(updatedDiaries));
   };
+  const onHandleDelete = async (id: number) => {
+    Alert.alert("Confirm Delete", "Are you sure?", [
+      {
+        text: "Cancel",
+        onPress: () => console.log("Cancel Pressed"),
+        style: "cancel",
+      },
+      { text: "Delete", onPress: () => deleteFunc(id) },
+    ]);
+  };
+
+  const filteredDiariesFunc = () =>
+    diaries.filter((item) => item.diary.includes(searchText));
+
+  useEffect(() => {
+    setFilteredDiaries(filteredDiariesFunc());
+  }, [searchText]);
 
   useEffect(() => {
     findDiaries();
@@ -45,20 +70,34 @@ const NoteScreen = ({ username }: { username: string }) => {
         <TextInput
           style={styles.searchInput}
           cursorColor={"#000"}
-          placeholder="Search by date"
+          placeholder="Search"
+          onChangeText={(text) => setSearchText(text)}
         />
-        {diaries.map((item: any, i: number) => {
-          return (
-            <View key={i} style={{ marginTop: 20 }}>
-              <DiaryCard
-                onHandleDelete={onHandleDelete}
-                id={item.id}
-                date={item.date}
-                diary={item.diary}
-              />
-            </View>
-          );
-        })}
+        {searchText.length > 0
+          ? filteredDiaries.map((item: any, i: number) => {
+              return (
+                <View key={i} style={{ marginTop: 20 }}>
+                  <DiaryCard
+                    onHandleDelete={onHandleDelete}
+                    id={item.id}
+                    date={item.date}
+                    diary={item.diary}
+                  />
+                </View>
+              );
+            })
+          : diaries.map((item: any, i: number) => {
+              return (
+                <View key={i} style={{ marginTop: 20 }}>
+                  <DiaryCard
+                    onHandleDelete={onHandleDelete}
+                    id={item.id}
+                    date={item.date}
+                    diary={item.diary}
+                  />
+                </View>
+              );
+            })}
       </View>
       <FloatingActions onCreateClick={() => setCreateModalOpen(true)} />
       <NoteInputModal
@@ -70,7 +109,7 @@ const NoteScreen = ({ username }: { username: string }) => {
   );
 };
 
-export default NoteScreen;
+export default DiaryScreen;
 
 const styles = StyleSheet.create({
   container: {
