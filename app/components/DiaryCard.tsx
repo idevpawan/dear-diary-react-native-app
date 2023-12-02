@@ -10,6 +10,7 @@ import colors from "../misc/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Clipboard from "expo-clipboard";
+import NoteInputModal from "./NoteInputModal";
 
 const cardColors = ["#DBF3DB", "#F7F6D4", "#DCEAFC", "#EFE9F6"];
 
@@ -18,13 +19,16 @@ const DiaryCard = ({
   diary,
   id,
   onHandleDelete,
+  onHandleUpdate,
 }: {
   date: number;
   diary: string;
   id: number;
   onHandleDelete: (id: number) => void;
+  onHandleUpdate?: (content: string, id: number) => void;
 }) => {
   const [cardColor, setCardColor] = useState<string>("#DBF3DB");
+  const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
 
   function getRandomColor() {
     const randomIndex = Math.floor(Math.random() * cardColors.length);
@@ -37,7 +41,7 @@ const DiaryCard = ({
 
   const copyDiary = (content: string) => {
     if (content !== null) {
-      Clipboard.setStringAsync("Hello wolrd");
+      Clipboard.setStringAsync(content);
     }
     ToastAndroid.showWithGravity(
       "Diary Copied!",
@@ -46,15 +50,8 @@ const DiaryCard = ({
     );
   };
 
-  const getFormattedDate = (epoch: number) => {
-    const convertedEpoch = new Date(epoch);
-    const dateFormat =
-      convertedEpoch.getDate() +
-      "/" +
-      convertedEpoch.getMonth() +
-      "/" +
-      convertedEpoch.getFullYear();
-    return dateFormat;
+  const setUpdateId = (content: string) => {
+    onHandleUpdate && onHandleUpdate(content, id);
   };
 
   return (
@@ -78,7 +75,7 @@ const DiaryCard = ({
             fontSize: 20,
           }}
         >
-          {getFormattedDate(date)}
+          {date}
         </Text>
         <Text
           style={{
@@ -106,7 +103,7 @@ const DiaryCard = ({
         }}
         colors={["transparent", cardColor]}
       >
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => setCreateModalOpen(true)}>
           <Ionicons style={styles.iconBg} name="eye-outline" />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => onHandleDelete(id)}>
@@ -116,6 +113,14 @@ const DiaryCard = ({
           <Ionicons style={styles.iconBg} name="copy-outline" />
         </TouchableOpacity>
       </LinearGradient>
+      <NoteInputModal
+        visible={createModalOpen}
+        onClose={setCreateModalOpen}
+        isEdit={createModalOpen}
+        viewDate={String(date)}
+        editDiary={diary}
+        onUpdate={setUpdateId}
+      />
     </View>
   );
 };

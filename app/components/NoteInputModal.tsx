@@ -1,12 +1,4 @@
-import {
-  Button,
-  Modal,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
 import React, { useState } from "react";
 import colors from "../misc/colors";
 
@@ -14,12 +6,20 @@ const NoteInputModal = ({
   visible,
   onClose,
   onSubmit,
+  onUpdate,
+  isEdit,
+  viewDate,
+  editDiary,
 }: {
   visible: boolean;
+  isEdit?: boolean;
   onClose: (val: boolean) => void;
-  onSubmit: (val: string) => void;
+  onSubmit?: (val: string) => void;
+  onUpdate?: (val: string) => void;
+  viewDate?: string;
+  editDiary?: string;
 }) => {
-  const [diary, setDiary] = useState<string>("");
+  const [diary, setDiary] = useState<string>(editDiary ? editDiary : "");
   const onHandleChangeInput = (text: string) => setDiary(text);
   const currentDate =
     new Date().getDate() +
@@ -30,7 +30,7 @@ const NoteInputModal = ({
 
   const handleSubmit = () => {
     if (!diary.trim()) return onClose(false);
-    onSubmit(diary);
+    onSubmit && onSubmit(diary);
     setDiary("");
     onClose(false);
   };
@@ -65,7 +65,7 @@ const NoteInputModal = ({
               opacity: 0.7,
             }}
           >
-            {currentDate}
+            {isEdit ? viewDate : currentDate}
           </Text>
           <TouchableOpacity onPress={() => onClose(false)} style={{}}>
             <Text
@@ -74,7 +74,7 @@ const NoteInputModal = ({
                 opacity: 0.7,
               }}
             >
-              Cancel
+              {isEdit ? "Close" : "Cancel"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -111,7 +111,14 @@ const NoteInputModal = ({
           }}
         >
           <TouchableOpacity
-            onPress={handleSubmit}
+            onPress={() => {
+              if (isEdit && onUpdate) {
+                onUpdate(diary);
+                onClose(false);
+              } else {
+                handleSubmit();
+              }
+            }}
             style={{
               backgroundColor: colors.PRIMARY,
               padding: 15,
@@ -126,7 +133,7 @@ const NoteInputModal = ({
                 fontSize: 18,
               }}
             >
-              Create
+              {isEdit ? "Update" : "Create"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -136,5 +143,3 @@ const NoteInputModal = ({
 };
 
 export default NoteInputModal;
-
-const styles = StyleSheet.create({});

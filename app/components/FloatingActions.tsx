@@ -5,11 +5,9 @@ import RoundIconButton from "./RoundIconButton";
 
 const FloatingActions = ({ onCreateClick }: { onCreateClick: () => void }) => {
   return (
-    <LinearGradient colors={["transparent", "#fff"]} style={styles.container}>
-      <View>
-        <RoundIconButton onPress={onCreateClick} name={"plus"} />
-      </View>
-    </LinearGradient>
+    <View style={styles.container}>
+      <RoundIconButton onPress={onCreateClick} name={"plus"} />
+    </View>
   );
 };
 
@@ -19,9 +17,10 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     position: "absolute",
-    bottom: 10,
+    bottom: 20,
+    right: 10,
     display: "flex",
-    alignItems: "center",
-    padding: 10,
+    alignItems: "flex-end",
+    paddingBottom: 10,
   },
 });
